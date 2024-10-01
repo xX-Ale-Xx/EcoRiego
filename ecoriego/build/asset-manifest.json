@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/EcoRiego/ecoriego/build/static/css/main.3c64b4c2.css",
+    "main.js": "/EcoRiego/ecoriego/build/static/js/main.f99175ff.js",
+    "static/js/453.c56d4bf3.chunk.js": "/EcoRiego/ecoriego/build/static/js/453.c56d4bf3.chunk.js",
+    "index.html": "/EcoRiego/ecoriego/build/index.html",
+    "main.3c64b4c2.css.map": "/EcoRiego/ecoriego/build/static/css/main.3c64b4c2.css.map",
+    "main.f99175ff.js.map": "/EcoRiego/ecoriego/build/static/js/main.f99175ff.js.map",
+    "453.c56d4bf3.chunk.js.map": "/EcoRiego/ecoriego/build/static/js/453.c56d4bf3.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3c64b4c2.css",
+    "static/js/main.f99175ff.js"
+  ]
+}
