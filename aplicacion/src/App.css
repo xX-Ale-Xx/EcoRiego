@@ -1,0 +1,151 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(45deg, #121212, #1e1e1e);
+  background-size: 400% 400%;
+  animation: gradient-animation 10s ease infinite; /* Animación del fondo */
+  color: #e0e0e0; /* Texto en gris claro */
+}
+
+@keyframes gradient-animation {
+  0% {
+      background-position: 0% 50%;
+  }
+  50% {
+      background-position: 100% 50%;
+  }
+  100% {
+      background-position: 0% 50%;
+  }
+}
+
+.card {
+  background-color: rgba(30, 30, 30, 0.9); /* Fondo del card con algo de transparencia */
+  border-radius: 16px;
+  padding: 24px;
+  width: 320px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+h2 {
+  margin-bottom: 16px;
+  font-size: 24px;
+  color: #ffffff; /* Título en blanco */
+  font-weight: 700;
+}
+
+.icon-container {
+  margin-bottom: 16px;
+}
+
+.icon {
+  transition: stroke 0.3s ease;
+}
+
+.weather-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: rgba(41, 41, 41, 0.8); /* Fondo del bloque de clima con transparencia */
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+}
+
+.weather-icon {
+  font-size: 24px;
+}
+
+.weather-details {
+  text-align: right;
+  font-size: 14px;
+  color: #b0b0b0; /* Texto en gris claro */
+}
+
+.control-button {
+  background-color: #f44336; /* Color del botón */
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 16px;
+  transition: background-color 0.3s;
+}
+
+.control-button:hover {
+  background-color: #e53935; /* Color del botón al pasar el cursor */
+}
+
+.irrigation-status-text {
+  font-size: 14px;
+  color: #b0b0b0; /* Texto gris claro */
+  margin-bottom: 16px;
+}
+
+.auto-mode {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 20px;
+}
+
+.switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ddd;
+  transition: 0.4s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 12px;
+  width: 12px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #3b82f6; /* Azul para el modo automático activado */
+}
+
+input:checked + .slider:before {
+  transform: translateX(18px);
+}
+
+.control-button.disabled {
+  background-color: #555; /* Botón desactivado en gris oscuro */
+  cursor: not-allowed;
+}
