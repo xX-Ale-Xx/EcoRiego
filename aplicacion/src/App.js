@@ -8,55 +8,25 @@ function App() {
     icon: '',
   });
   const [location, setLocation] = useState('Guatemala');
+  const [irrigationActive, setIrrigationActive] = useState(true);
+  const [autoMode, setAutoMode] = useState(false);
+
+  // Manejo del cambio de estado del riego
+  const handleIrrigationButtonClick = () => {
+    setIrrigationActive(!irrigationActive);
+  };
+
+  // Manejo del cambio de modo automático
+  const handleAutoModeToggleChange = () => {
+    setAutoMode(!autoMode);
+  };
 
   useEffect(() => {
-    let irrigationActive = true;
-
-    // Obtener referencia a los elementos del DOM.
-    const irrigationButton = document.getElementById("irrigation-button");
-    const irrigationStatus = document.getElementById("irrigation-status");
-    const waterIcon = document.getElementById("water-icon");
-    const autoModeToggle = document.getElementById("auto-mode-toggle");
-
-    const handleIrrigationButtonClick = () => {
-      irrigationActive = !irrigationActive;
-
-      if (irrigationActive) {
-        irrigationButton.textContent = "Pause";
-        irrigationButton.style.backgroundColor = "#f44336";
-        irrigationStatus.textContent = "Irrigation in progress. Providing water to your plants.";
-        waterIcon.setAttribute("stroke", "#3b82f6");
-      } else {
-        irrigationButton.textContent = "Resume";
-        irrigationButton.style.backgroundColor = "#3b82f6";
-        irrigationStatus.textContent = "Irrigation paused. Waiting to resume.";
-        waterIcon.setAttribute("stroke", "#777");
-      }
-    };
-
-    const handleAutoModeToggleChange = () => {
-      const isAutoMode = autoModeToggle.checked;
-
-      if (isAutoMode) {
-        irrigationButton.disabled = true;
-        irrigationButton.classList.add("disabled");
-        irrigationButton.textContent = "Irrigation Controlled Automatically";
-      } else {
-        irrigationButton.disabled = false;
-        irrigationButton.classList.remove("disabled");
-        irrigationButton.textContent = irrigationActive ? "Pause" : "Resume";
-      }
-    };
-
-    // Agregar los event listeners
-    irrigationButton.addEventListener("click", handleIrrigationButtonClick);
-    autoModeToggle.addEventListener("change", handleAutoModeToggleChange);
-
-    return () => {
-      irrigationButton.removeEventListener("click", handleIrrigationButtonClick);
-      autoModeToggle.removeEventListener("change", handleAutoModeToggleChange);
-    };
-  }, []);
+    // Simulación de actualización basada en el modo automático
+    if (autoMode) {
+      setIrrigationActive(false); // Si está en modo automático, el riego manual se desactiva
+    }
+  }, [autoMode]);
 
   useEffect(() => {
     // Función para obtener los datos climáticos desde la API
@@ -66,16 +36,24 @@ function App() {
 
       try {
         const response = await fetch(apiUrl);
-         const responseBack = await fetch('/humedad');  // Usa ruta relativa
-          const dataBack = await responseBack.json();
-      console.log('Humedad:', dataBack.humedad)
-        if (response.ok) {
+        const responseBack = await fetch('/humedad');  // Usa ruta relativa
+        const dataBack = await responseBack.json();
+        console.log('Humedad:', dataBack.humedad);
+        
+        if (responseBack.ok) {
           const data = await response.json();
-          const temperature = data.main.temp;
-          const humidity = data.main.humidity;
-          const icon = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+          //const temperature = data.main.temp;
+          //const humidity = data.main.humidity;
+          //const icon = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 
-          setWeatherData({ temperature, humidity, icon });
+          if (dataBack.humedad === 1) {
+            console.log("Regando")
+            setIrrigationActive(true); // Cambia el estado de riego si es necesario
+          } else {
+            setIrrigationActive(false); // Pausa el riego
+          }
+
+          //setWeatherData({ temperature, humidity, icon });
         } else {
           console.error("Error fetching weather data");
         }
@@ -85,9 +63,8 @@ function App() {
     };
 
     fetchWeatherData();
-    const intervalId = setInterval(fetchWeatherData, 30000); // 300000 ms = 5 minutos
+    const intervalId = setInterval(fetchWeatherData, 3000); // 300000 ms = 5 minutos
 
-    // Limpiar el intervalo cuando se desmonte el componente o cambie la ubicación.
     return () => clearInterval(intervalId);
   }, [location]);
 
@@ -96,11 +73,19 @@ function App() {
       <div className="card">
         <h2>Irrigation System</h2>
         <div className="icon-container">
-          <svg id="water-icon" xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="#3b82f6" className="icon">
+          <svg id="water-icon" xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke={irrigationActive ? "#3b82f6" : "#777"} className="icon">
             <path d="M12 21c4.97 0 9-4.03 9-9S12 2 12 2 3 7.03 3 12s4.03 9 9 9z" />
           </svg>
         </div>
-        <button className="control-button" id="irrigation-button">Pause</button>
+        <button 
+          className={`control-button ${autoMode ? "disabled" : ""}`} 
+          id="irrigation-button"
+          onClick={handleIrrigationButtonClick}
+          disabled={autoMode}
+          style={{ backgroundColor: irrigationActive ? "#f44336" : "#3b82f6" }}
+        >
+          {irrigationActive ? "Pause" : "Resume"}
+        </button>
 
         <div className="weather-info">
           {weatherData.temperature !== null ? (
@@ -119,12 +104,22 @@ function App() {
           )}
         </div>
 
-        <p className="irrigation-status-text" id="irrigation-status">Irrigation in progress. Providing water to your plants.</p>
+        <p className="irrigation-status-text" id="irrigation-status">
+          {irrigationActive 
+            ? "Irrigation in progress. Providing water to your plants."
+            : "Irrigation paused. Waiting to resume."
+          }
+        </p>
 
         <div className="auto-mode">
           <span>Auto Mode</span>
           <label className="switch">
-            <input type="checkbox" id="auto-mode-toggle" />
+            <input 
+              type="checkbox" 
+              id="auto-mode-toggle" 
+              checked={autoMode} 
+              onChange={handleAutoModeToggleChange} 
+            />
             <span className="slider"></span>
           </label>
         </div>
