@@ -8,17 +8,39 @@ function App() {
     icon: '',
   });
   const [location, setLocation] = useState('Guatemala');
-  const [irrigationActive, setIrrigationActive] = useState(true);
+  const [irrigationActive, setIrrigationActive] = useState(false); // Inicio en falso
   const [autoMode, setAutoMode] = useState(false);
 
   // Manejo del cambio de estado del riego
-  const handleIrrigationButtonClick = () => {
+  const handleIrrigationButtonClick = async () => {
     setIrrigationActive(!irrigationActive);
+    
+    // Llamada al backend para pausar o reanudar el riego manualmente
+    const route = irrigationActive ? '/pause' : '/resume';
+    try {
+      const response = await fetch(route, { method: 'POST' });
+      if (!response.ok) {
+        throw new Error('Error al cambiar el estado del riego');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   // Manejo del cambio de modo automático
-  const handleAutoModeToggleChange = () => {
+  const handleAutoModeToggleChange = async () => {
     setAutoMode(!autoMode);
+    
+    // Llamada al backend para activar o desactivar el modo automático
+    const route = autoMode ? '/manual' : '/automatico';
+    try {
+      const response = await fetch(route, { method: 'POST' });
+      if (!response.ok) {
+        throw new Error('Error al cambiar el modo automático');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   useEffect(() => {
@@ -29,41 +51,44 @@ function App() {
   }, [autoMode]);
 
   useEffect(() => {
-    // Función para obtener los datos climáticos desde la API
+    // Función para obtener los datos climáticos desde la API y la humedad del backend
     const fetchWeatherData = async () => {
       const apiKey = '091e5c01ceadb58617a7aeaa7e3584db'; // Reemplaza con tu propia API Key de OpenWeatherMap
       const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${apiKey}`;
 
       try {
         const response = await fetch(apiUrl);
-        const responseBack = await fetch('/humedad');  // Usa ruta relativa
+        const responseBack = await fetch('/humedad');  // Usa ruta relativa para el backend
         const dataBack = await responseBack.json();
-        console.log('Humedad:', dataBack.humedad);
+        console.log('Humedad del sensor:', dataBack.humedad);
         
-        if (responseBack.ok) {
-          const data = await response.json();
-          //const temperature = data.main.temp;
-          //const humidity = data.main.humidity;
+        if (response.ok && responseBack.ok) {
+          //const data = await response.json();
+         // const temperature = data.main.temp;
+         // const humidity = data.main.humidity;
           //const icon = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
 
+          // Establece los datos del clima en el estado
+          //setWeatherData({ temperature, humidity, icon });
+
+          // Modifica el estado del riego basado en el sensor de humedad
           if (dataBack.humedad === 1) {
-            console.log("Regando")
+            console.log("La tierra está seca. Regando...");
             setIrrigationActive(true); // Cambia el estado de riego si es necesario
           } else {
+            console.log("La tierra está húmeda. Pausando riego...");
             setIrrigationActive(false); // Pausa el riego
           }
-
-          //setWeatherData({ temperature, humidity, icon });
         } else {
-          console.error("Error fetching weather data");
+          console.error("Error fetching weather or humidity data");
         }
       } catch (error) {
-        console.error("Unable to fetch weather data:", error);
+        console.error("Unable to fetch weather or humidity data:", error);
       }
     };
 
     fetchWeatherData();
-    const intervalId = setInterval(fetchWeatherData, 3000); // 300000 ms = 5 minutos
+    const intervalId = setInterval(fetchWeatherData, 3000); // Actualiza cada 3 segundos
 
     return () => clearInterval(intervalId);
   }, [location]);
@@ -87,7 +112,7 @@ function App() {
           {irrigationActive ? "Pause" : "Resume"}
         </button>
 
-        <div className="weather-info">
+        <div className="weather-info" style={{ textAlign: 'center' }}>
           {weatherData.temperature !== null ? (
             <>
               <span className="weather-icon">
@@ -100,7 +125,10 @@ function App() {
               </span>
             </>
           ) : (
-            <span>Loading weather data...</span>
+            <span style={{ textAlign: 'center' }}>{irrigationActive 
+            ? "Dry land."
+            : "Wet land."
+          }</span>
           )}
         </div>
 
